@@ -32,6 +32,7 @@ Other:
 
 ## Project Structure
 
+```
 dublin-bikes-app/
 │
 ├── app/ # Flask backend (routes, templates, static)
@@ -41,6 +42,7 @@ dublin-bikes-app/
 ├── tests/
 ├── run.py # App entry point
 ├── requirements.txt
+```
 
 ---
 
