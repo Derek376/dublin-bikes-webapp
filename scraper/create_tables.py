@@ -1,113 +1,132 @@
-# create_tables.py
-from sqlalchemy import create_engine, text
-import dbinfo
+# scraper/create_tables.py
+import pymysql
+from dbinfo import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
 
 
-def main():
-    engine = create_engine(dbinfo.DB_URI, pool_pre_ping=True, future=True)
+def get_conn(with_db: bool = True):
+    params = dict(
+        host=DB_HOST,
+        port=DB_PORT,
+        user=DB_USER,
+        password=DB_PASSWORD,
+        charset="utf8mb4",
+        autocommit=True
+    )
+    if with_db:
+        params["database"] = DB_NAME
+    return pymysql.connect(**params)
 
-    sql_statements = [
-        # 1) Static station info
-        """
-        CREATE TABLE IF NOT EXISTS station (
-            number INT NOT NULL,
-            address VARCHAR(128),
-            banking TINYINT,
-            bike_stands INT,
-            name VARCHAR(128),
-            position_lat FLOAT,
-            position_lng FLOAT,
-            PRIMARY KEY (number)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """,
 
-        # 2) Dynamic bike availability snapshots
-        """
-        CREATE TABLE IF NOT EXISTS availability (
-            number INT NOT NULL,
-            last_update DATETIME NOT NULL,
-            available_bikes INT,
-            available_bike_stands INT,
-            status VARCHAR(64),
-            PRIMARY KEY (number, last_update),
-            INDEX idx_availability_last_update (last_update),
-            CONSTRAINT fk_availability_station
-                FOREIGN KEY (number) REFERENCES station(number)
-                ON UPDATE CASCADE ON DELETE CASCADE
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """,
+def create_database():
+    conn = get_conn(with_db=False)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(f"CREATE DATABASE IF NOT EXISTS `{DB_NAME}` CHARACTER SET utf8mb4;")
+    finally:
+        conn.close()
 
-        # 3) Current weather (free plan compatible)
-        """
-        CREATE TABLE IF NOT EXISTS `current` (
-            dt DATETIME NOT NULL,
-            feels_like FLOAT,
-            humidity INT,
-            pressure INT,
-            sunrise DATETIME,
-            sunset DATETIME,
-            `temp` FLOAT,
-            weather_id INT,
-            wind_gust FLOAT,
-            wind_speed FLOAT,
-            rain_1h FLOAT,
-            snow_1h FLOAT,
-            clouds INT,
-            visibility INT,
-            PRIMARY KEY (dt)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """,
 
-        # 4) "Hourly" table (store 3-hour forecast slots from free forecast API)
-        """
-        CREATE TABLE IF NOT EXISTS hourly (
-            dt DATETIME NOT NULL,           -- scrape time
-            future_dt DATETIME NOT NULL,    -- forecast time
-            feels_like FLOAT,
-            humidity INT,
-            pop FLOAT,
-            pressure INT,
-            `temp` FLOAT,
-            weather_id INT,
-            wind_speed FLOAT,
-            wind_gust FLOAT,
-            rain_1h FLOAT,
-            snow_1h FLOAT,
-            clouds INT,
-            visibility INT,
-            PRIMARY KEY (dt, future_dt),
-            INDEX idx_hourly_future_dt (future_dt)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """,
+def create_tables():
+    conn = get_conn(with_db=True)
+    try:
+        with conn.cursor() as cur:
+            # 1) station (static)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS station (
+                    number INTEGER NOT NULL,
+                    address VARCHAR(128),
+                    banking INTEGER,
+                    bike_stands INTEGER,
+                    name VARCHAR(128),
+                    position_lat FLOAT,
+                    position_lng FLOAT,
+                    PRIMARY KEY (number)
+                );
+            """)
 
-        # 5) Daily table (optional aggregation from 3-hour forecast)
-        """
-        CREATE TABLE IF NOT EXISTS daily (
-            dt DATETIME NOT NULL,           -- scrape time
-            future_dt DATETIME NOT NULL,    -- day representative datetime (e.g., 00:00)
-            humidity INT,
-            pop FLOAT,
-            pressure INT,
-            temp_max FLOAT,
-            temp_min FLOAT,
-            weather_id INT,
-            wind_speed FLOAT,
-            wind_gust FLOAT,
-            rain FLOAT,
-            snow FLOAT,
-            clouds INT,
-            PRIMARY KEY (dt, future_dt),
-            INDEX idx_daily_future_dt (future_dt)
-        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-        """
-    ]
+            # 2) availability (dynamic)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS availability (
+                    number INTEGER NOT NULL,
+                    last_update DATETIME NOT NULL,
+                    available_bikes INTEGER,
+                    available_bike_stands INTEGER,
+                    status VARCHAR(128),
+                    PRIMARY KEY (number, last_update),
+                    INDEX idx_availability_last_update (last_update),
+                    CONSTRAINT fk_availability_station
+                        FOREIGN KEY (number) REFERENCES station(number)
+                        ON DELETE CASCADE ON UPDATE CASCADE
+                );
+            """)
 
-    with engine.begin() as conn:
-        for stmt in sql_statements:
-            conn.execute(text(stmt))
+            # 3) current (from /data/2.5/weather)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS current (
+                    dt DATETIME NOT NULL,
+                    sunrise DATETIME,
+                    sunset DATETIME,
+                    temp FLOAT,
+                    feels_like FLOAT,
+                    humidity INTEGER,
+                    pressure INTEGER,
+                    wind_speed FLOAT,
+                    wind_gust FLOAT,
+                    weather_id INTEGER,
+                    clouds INTEGER,
+                    visibility INTEGER,
+                    rain_1h FLOAT,
+                    snow_1h FLOAT,
+                    PRIMARY KEY (dt),
+                    INDEX idx_current_dt (dt)
+                );
+            """)
 
-    print(" Tables created/verified successfully:")
+            # 4) hourly (from pro /data/2.5/forecast/hourly)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS hourly (
+                    dt DATETIME NOT NULL,
+                    future_dt DATETIME NOT NULL,
+                    temp FLOAT,
+                    feels_like FLOAT,
+                    humidity INTEGER,
+                    pressure INTEGER,
+                    pop FLOAT,
+                    clouds INTEGER,
+                    wind_speed FLOAT,
+                    wind_gust FLOAT,
+                    weather_id INTEGER,
+                    rain_1h FLOAT,
+                    snow_1h FLOAT,
+                    PRIMARY KEY (dt, future_dt),
+                    INDEX idx_hourly_future_dt (future_dt)
+                );
+            """)
+
+            # 5) daily (from /data/2.5/forecast/daily?cnt=16)
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS daily (
+                    dt DATETIME NOT NULL,
+                    future_dt DATETIME NOT NULL,
+                    temp_min FLOAT,
+                    temp_max FLOAT,
+                    humidity INTEGER,
+                    pressure INTEGER,
+                    clouds INTEGER,
+                    wind_speed FLOAT,
+                    wind_gust FLOAT,
+                    weather_id INTEGER,
+                    rain FLOAT,
+                    snow FLOAT,
+                    PRIMARY KEY (dt, future_dt),
+                    INDEX idx_daily_future_dt (future_dt)
+                );
+            """)
+    finally:
+        conn.close()
 
 
 if __name__ == "__main__":
-    main()
+    create_database()
+    create_tables()
+    print("Database and 5 tables created successfully (OpenWeather 2.5/pro schema).")
