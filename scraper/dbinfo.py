@@ -1,11 +1,11 @@
 import os
 
 # MySQL
-DB_USER = os.getenv("DB_USER", "root")
+DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD") # forced to be read from the environment.
 DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
 DB_PORT = int(os.getenv("DB_PORT", "3306"))
-DB_NAME = os.getenv("DB_NAME", "local_databasejcdecaux")
+DB_NAME = os.getenv("DB_NAME")
 
 
 
