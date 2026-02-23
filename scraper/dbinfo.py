@@ -2,16 +2,16 @@ import os
 
 # MySQL
 DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "YOUR_DB_PASSWORD")
+DB_PASSWORD = os.getenv("DB_PASSWORD") # forced to be read from the environment.
 DB_HOST = os.getenv("DB_HOST", "127.0.0.1")
 DB_PORT = int(os.getenv("DB_PORT", "3306"))
-DB_NAME = "local_databasejcdecaux"
+DB_NAME = os.getenv("DB_NAME", "local_databasejcdecaux")
 
 
 
 
 # JCDecaux
-JCDECAUX_API_KEY = os.getenv("JCDECAUX_API_KEY", "YOUR_JCDECAUX_API_KEY")
+JCDECAUX_API_KEY = os.getenv("JCDECAUX_API_KEY")
 JCDECAUX_CONTRACT = os.getenv("JCDECAUX_CONTRACT", "dublin")
 JCDECAUX_STATIONS_URI = os.getenv(
     "JCDECAUX_STATIONS_URI",
@@ -22,7 +22,7 @@ JCDECAUX_STATIONS_URI = os.getenv(
 # Developer plan allows:
 # - Hourly forecast: 4 days
 # - Daily forecast: 16 days
-OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "YOUR_OPENWEATHER_API_KEY")
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 OPENWEATHER_LAT = float(os.getenv("OPENWEATHER_LAT", "53.3498"))   # Dublin
 OPENWEATHER_LON = float(os.getenv("OPENWEATHER_LON", "-6.2603"))
 CURRENT_URL = "https://api.openweathermap.org/data/2.5/weather"
