@@ -1,6 +1,18 @@
+import os
+import sys
 import requests
 import pymysql
 from flask import Blueprint, jsonify
+from dotenv import load_dotenv
+
+# Dynamically locate the .env file in the root directory
+basedir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+env_path = os.path.join(basedir, ".env")
+load_dotenv(env_path)
+if basedir not in sys.path:
+    sys.path.append(basedir)
+
+
 
 from scraper.dbinfo import (
     JCDECAUX_STATIONS_URI, JCDECAUX_API_KEY, JCDECAUX_CONTRACT,
