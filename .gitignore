@@ -224,3 +224,8 @@ venv/
 
 # OS
 .DS_Store
+
+# Project specific secrets
+environment.yml
+scraper/dbinfo.py
+.env
