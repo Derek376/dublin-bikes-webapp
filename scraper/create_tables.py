@@ -1,5 +1,23 @@
 # scraper/create_tables.py
+import os
+import sys
 import pymysql
+from dotenv import load_dotenv
+# Dynamically locate the .env file in the root directory
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+if current_dir not in sys.path:
+    sys.path.append(current_dir)
+
+project_root = os.path.join(current_dir, "..")
+env_path = os.path.join(project_root, ".env")
+# load .env file
+if os.path.exists(env_path):
+    load_dotenv(env_path)
+else:
+    load_dotenv()
+
+
 from dbinfo import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
 
 
