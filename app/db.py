@@ -13,12 +13,7 @@ if os.path.exists(ENV_PATH):
 else:
     load_dotenv()
 
-# add scraper dir to sys.path, so we can import dbinfo.py
-SCRAPER_DIR = os.path.join(PROJECT_ROOT, "scraper")
-if SCRAPER_DIR not in sys.path:
-    sys.path.append(SCRAPER_DIR)
-
-from dbinfo import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME  # noqa
+from scraper.dbinfo import DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME  # noqa
 
 
 def get_conn():

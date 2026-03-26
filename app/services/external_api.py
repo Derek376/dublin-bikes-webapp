@@ -13,11 +13,7 @@ if os.path.exists(ENV_PATH):
 else:
     load_dotenv()
 
-SCRAPER_DIR = os.path.join(PROJECT_ROOT, "scraper")
-if SCRAPER_DIR not in sys.path:
-    sys.path.append(SCRAPER_DIR)
-
-from dbinfo import (  # noqa
+from scraper.dbinfo import (
     JCDECAUX_API_KEY, JCDECAUX_CONTRACT, JCDECAUX_STATIONS_URI,
     OPENWEATHER_API_KEY, OPENWEATHER_LAT, OPENWEATHER_LON,
     CURRENT_URL, HOURLY_4D_URL, DAILY_16D_URL
