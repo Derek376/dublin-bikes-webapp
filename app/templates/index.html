@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dublin Bikes Map</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <header>
+      <h1>Dublin Bikes Live Map</h1>
+      <p>Live station availability across Dublin</p>
+    </header>
+
+    <section class="summary-bar">
+      <div class="summary-card">
+        <h3>Total Stations</h3>
+        <p id="total-stations">--</p>
+      </div>
+
+      <div class="summary-card">
+        <h3>Open Stations</h3>
+        <p id="open-stations">--</p>
+      </div>
+
+      <div class="summary-card">
+        <h3>Available Bikes</h3>
+        <p id="total-bikes">--</p>
+      </div>
+
+      <div class="summary-card">
+        <h3>Available Stands</h3>
+        <p id="total-stands">--</p>
+      </div>
+    </section>
+
+    <main class="layout">
+      <section class="map-section">
+        <div id="map"></div>
+
+        <div class="map-legend">
+          <h4>Bike Availability</h4>
+          <div class="legend-item">
+            <span class="legend-dot green"></span>
+            <span>High availability</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot orange"></span>
+            <span>Medium availability</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot red"></span>
+            <span>Low availability</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <div id="station-details">
+          <h2>Station Details</h2>
+          <p>Click a station marker to view details.</p>
+        </div>
+
+        <div class="chart-container">
+          <canvas id="historyChart"></canvas>
+        </div>
+
+        <div class="weather-section">
+          <h3>Weather Forecast</h3>
+
+          <div class="chart-container weather-chart-container">
+            <canvas id="weatherChart"></canvas>
+          </div>
+
+          <div id="weather-summary">
+            <p>Click a station marker to load weather forecast.</p>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <script src="{{ url_for('static', filename='js/map.js') }}"></script>
+    <script
+      async
+      defer
+      src="https://maps.googleapis.com/maps/api/js?key={{ google_maps_api_key }}&callback=initMap"
+    ></script>
+  </body>
+</html>

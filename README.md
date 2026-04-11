@@ -33,11 +33,11 @@ Other:
 ## Project Structure
 
 ```
-dublin-bikes-app/
+dublin-bikes-webapp/
 │
 ├── app/ # Flask backend (routes, templates, static)
 ├── scraper/ # Data collection scripts
-├── models/ # ML models
+├── ml/ # ML models
 ├── docs/ # Personas, stories, mockups and so on
 ├── tests/
 ├── run.py # App entry point

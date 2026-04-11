@@ -3,14 +3,10 @@ import time
 import traceback
 from datetime import datetime, UTC
 
-from create_tables import create_database, create_tables
-from scrape_jcdecaux import scrape_once as scrape_jcdecaux_once
-from scrape_openweather import scrape_once as scrape_openweather_once
-from dbinfo import (
-    JCDECAUX_SCRAPE_INTERVAL,
-    OPENWEATHER_SCRAPE_INTERVAL,
-    MAIN_LOOP_SLEEP
-)
+from scraper.create_tables import create_database, create_tables
+from scraper.scrape_jcdecaux import scrape_once as scrape_jcdecaux_once
+from scraper.scrape_openweather import scrape_once as scrape_openweather_once
+from app.config import Config
 
 
 def main():
@@ -25,7 +21,7 @@ def main():
         now = time.time()
 
         # JCDecaux
-        if now - last_jc >= JCDECAUX_SCRAPE_INTERVAL:
+        if now - last_jc >= Config.JCDECAUX_SCRAPE_INTERVAL:
             try:
                 n = scrape_jcdecaux_once()
                 print(f"[{datetime.now(UTC)}] JCDecaux updated: {n} stations")
@@ -35,7 +31,7 @@ def main():
                 print(traceback.format_exc())
 
         # OpenWeather
-        if now - last_ow >= OPENWEATHER_SCRAPE_INTERVAL:
+        if now - last_ow >= Config.OPENWEATHER_SCRAPE_INTERVAL:
             try:
                 scrape_openweather_once()
                 print(f"[{datetime.now(UTC)}] OpenWeather updated")
@@ -44,7 +40,7 @@ def main():
                 print("[OpenWeather] scrape failed:")
                 print(traceback.format_exc())
 
-        time.sleep(MAIN_LOOP_SLEEP)
+        time.sleep(Config.MAIN_LOOP_SLEEP)
 
 
 if __name__ == "__main__":

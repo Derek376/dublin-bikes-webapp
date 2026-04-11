@@ -3,16 +3,13 @@ from datetime import UTC, datetime, timezone
 import requests
 import pymysql
 
-from dbinfo import (
-    DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME,
-    JCDECAUX_API_KEY, JCDECAUX_CONTRACT, JCDECAUX_STATIONS_URI
-)
+from app.config import Config
 
 
 def get_conn():
     return pymysql.connect(
-        host=DB_HOST, port=DB_PORT, user=DB_USER, password=DB_PASSWORD,
-        database=DB_NAME, charset="utf8mb4", autocommit=True
+        host=Config.DB_HOST, port=Config.DB_PORT, user=Config.DB_USER, password=Config.DB_PASSWORD,
+        database=Config.DB_NAME, charset="utf8mb4", autocommit=True
     )
 
 
@@ -25,10 +22,10 @@ def ms_epoch_to_dt(ms: int):
 
 def fetch_stations():
     params = {
-        "apiKey": JCDECAUX_API_KEY,
-        "contract": JCDECAUX_CONTRACT
+        "apiKey": Config.JCDECAUX_API_KEY,
+        "contract": Config.JCDECAUX_CONTRACT
     }
-    r = requests.get(JCDECAUX_STATIONS_URI, params=params, timeout=20)
+    r = requests.get(Config.JCDECAUX_STATIONS_URI, params=params, timeout=20)
     r.raise_for_status()
     return r.json()
 

@@ -3,15 +3,12 @@ from datetime import datetime, timezone, UTC
 import requests
 import pymysql
 
-from dbinfo import (
-    DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME,
-    OPENWEATHER_API_KEY, OPENWEATHER_LAT, OPENWEATHER_LON, CURRENT_URL, HOURLY_4D_URL, DAILY_16D_URL
-)
+from app.config import Config
 
 def get_conn():
     return pymysql.connect(
-        host=DB_HOST, port=DB_PORT, user=DB_USER, password=DB_PASSWORD,
-        database=DB_NAME, charset="utf8mb4", autocommit=True
+        host=Config.DB_HOST, port=Config.DB_PORT, user=Config.DB_USER, password=Config.DB_PASSWORD,
+        database=Config.DB_NAME, charset="utf8mb4", autocommit=True
     )
 
 
@@ -28,37 +25,37 @@ def _weather_id(obj: dict):
 
 def fetch_current():
     params = {
-        "lat": OPENWEATHER_LAT,
-        "lon": OPENWEATHER_LON,
-        "appid": (OPENWEATHER_API_KEY or "").strip(),
+        "lat": Config.OPENWEATHER_LAT,
+        "lon": Config.OPENWEATHER_LON,
+        "appid": (Config.OPENWEATHER_API_KEY or "").strip(),
         "units": "metric"
     }
-    r = requests.get(CURRENT_URL, params=params, timeout=20)
+    r = requests.get(Config.CURRENT_URL, params=params, timeout=20)
     r.raise_for_status()
     return r.json()
 
 
 def fetch_hourly_4days():
     params = {
-        "lat": OPENWEATHER_LAT,
-        "lon": OPENWEATHER_LON,
-        "appid": (OPENWEATHER_API_KEY or "").strip(),
+        "lat": Config.OPENWEATHER_LAT,
+        "lon": Config.OPENWEATHER_LON,
+        "appid": (Config.OPENWEATHER_API_KEY or "").strip(),
         "units": "metric"
     }
-    r = requests.get(HOURLY_4D_URL, params=params, timeout=20)
+    r = requests.get(Config.HOURLY_4D_URL, params=params, timeout=20)
     r.raise_for_status()
     return r.json()
 
 
 def fetch_daily(cnt=16):
     params = {
-        "lat": OPENWEATHER_LAT,
-        "lon": OPENWEATHER_LON,
+        "lat": Config.OPENWEATHER_LAT,
+        "lon": Config.OPENWEATHER_LON,
         "cnt": int(cnt),
-        "appid": (OPENWEATHER_API_KEY or "").strip(),
+        "appid": (Config.OPENWEATHER_API_KEY or "").strip(),
         "units": "metric"
     }
-    r = requests.get(DAILY_16D_URL, params=params, timeout=20)
+    r = requests.get(Config.DAILY_16D_URL, params=params, timeout=20)
     r.raise_for_status()
     return r.json()
 
