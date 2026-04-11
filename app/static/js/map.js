@@ -3,6 +3,38 @@ let historyChart = null;
 let weatherChart = null;
 let activeMarker = null;
 let activeInfoWindow = null;
+let allMarkers = [];
+let allStations = [];
+
+function matchesFilter(station, filterValue) {
+    const availableBikes = station.available_bikes ?? 0;
+    const totalStands =
+        station.bike_stands ?? (availableBikes + (station.available_bike_stands ?? 0));
+
+    const ratio = totalStands > 0 ? availableBikes / totalStands : 0;
+
+    if (filterValue === "open") {
+        return station.status === "OPEN";
+    }
+
+    if (filterValue === "high") {
+        return ratio >= 0.6;
+    }
+
+    return true;
+}
+
+function applyStationFilter() {
+    const filterValue = document.getElementById("station-filter").value;
+
+    allMarkers.forEach(({ marker, station }) => {
+        if (matchesFilter(station, filterValue)) {
+            marker.setMap(map);
+        } else {
+            marker.setMap(null);
+        }
+    });
+}
 
 function formatForecastTime(dtString) {
   const dt = new Date(dtString);
@@ -341,6 +373,9 @@ async function loadStations() {
     }
 
     const stations = await response.json();
+    allStations = stations;
+    allMarkers = [];
+    
 	updateSummaryCards(stations);
 	
     let firstMarkerData = null;
@@ -384,6 +419,7 @@ async function loadStations() {
       marker.addListener("click", () => {
         activateMarker(marker, color, infoWindow, station);
       });
+      allMarkers.push({ marker, station });
       if (!firstMarkerData) {
         firstMarkerData = { marker, color, infoWindow, station };
       }
@@ -396,6 +432,7 @@ async function loadStations() {
         firstMarkerData.station,
       );
     }
+    applyStationFilter();
   } catch (error) {
     console.error("Failed to load station data:", error);
     alert("Failed to load station data. Check console for details.");
@@ -403,15 +440,20 @@ async function loadStations() {
 }
 
 function initMap() {
-  map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: 53.3498, lng: -6.2603 },
-    zoom: 13,
-    mapTypeControl: false,
-    streetViewControl: false,
-    fullscreenControl: true,
-  });
+    map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: 53.3498, lng: -6.2603 },
+        zoom: 13,
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: true
+    });
 
-  loadStations();
+    const filterSelect = document.getElementById("station-filter");
+    if (filterSelect) {
+        filterSelect.addEventListener("change", applyStationFilter);
+    }
+
+    loadStations();
 }
 
 window.initMap = initMap;

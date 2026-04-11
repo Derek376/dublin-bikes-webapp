@@ -252,3 +252,25 @@ header p {
         grid-template-columns: 1fr;
     }
 }
+
+.filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px 20px 20px;
+    background: #f5f7fa;
+}
+
+.filter-bar label {
+    font-weight: 600;
+    color: #374151;
+}
+
+.filter-bar select {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    background: white;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
