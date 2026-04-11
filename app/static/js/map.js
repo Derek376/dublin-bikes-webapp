@@ -7,6 +7,46 @@ let allMarkers = [];
 let allStations = [];
 let activeStationNumber = null;
 let refreshIntervalId = null;
+let isRefreshing = false;
+
+function setRefreshStatus(status, text = null) {
+    const el = document.getElementById("refresh-status");
+    if (!el) return;
+
+    el.className = `status-badge ${status}`;
+
+    if (text) {
+        el.textContent = text;
+        return;
+    }
+
+    if (status === "idle") {
+        el.textContent = "Idle";
+    } else if (status === "refreshing") {
+        el.textContent = "Refreshing...";
+    } else if (status === "success") {
+        el.textContent = "Up to date";
+    } else if (status === "error") {
+        el.textContent = "Refresh failed";
+    }
+}
+
+function updateLastUpdatedTime() {
+    const now = new Date();
+    const formatted = now.toLocaleString([], {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
+    });
+
+    const el = document.getElementById("last-updated");
+    if (el) {
+        el.textContent = formatted;
+    }
+}
 
 function startAutoRefresh(intervalMs = 60000) {
     if (refreshIntervalId) {
@@ -416,85 +456,100 @@ async function loadStationHistory(stationNumber) {
 }
 
 async function loadStations() {
-  try {
-    clearAllMarkers();
-
-    const response = await fetch("/api/live/jcdecaux");
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    if (isRefreshing) {
+        return;
     }
 
-    const stations = await response.json();
-    allStations = stations;
-    allMarkers = [];
+    isRefreshing = true;
+    setRefreshStatus("refreshing");
 
-    updateSummaryCards(stations);
+    try {
+        clearAllMarkers();
 
-    let firstMarkerData = null;
+        const response = await fetch("/api/live/jcdecaux");
 
-    stations.forEach((station) => {
-      const lat = station.position?.lat;
-      const lng = station.position?.lng;
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
 
-      if (lat == null || lng == null) {
-        return;
-      }
+        const stations = await response.json();
+        allStations = stations;
+        allMarkers = [];
 
-      const availableBikes = station.available_bikes ?? 0;
-      const availableStands = station.available_bike_stands ?? 0;
-      const totalStands =
-        station.bike_stands ?? availableBikes + availableStands;
-      const color = getMarkerColor(availableBikes, totalStands);
+        updateSummaryCards(stations);
 
-      const marker = new google.maps.Marker({
-        position: { lat, lng },
-        map: map,
-        title: station.name || "Unknown Station",
-        icon: createMarkerIcon(color, false, availableBikes, totalStands),
-      });
+        let firstMarkerData = null;
 
-      marker.customColor = color;
-      marker.customAvailableBikes = availableBikes;
-      marker.customTotalStands = totalStands;
+        stations.forEach((station) => {
+            const lat = station.position?.lat;
+            const lng = station.position?.lng;
 
-      const infoWindow = new google.maps.InfoWindow({
-        content: `
+            if (lat == null || lng == null) {
+                return;
+            }
+
+            const availableBikes = station.available_bikes ?? 0;
+            const availableStands = station.available_bike_stands ?? 0;
+            const totalStands =
+                station.bike_stands ?? (availableBikes + availableStands);
+            const color = getMarkerColor(availableBikes, totalStands);
+
+            const marker = new google.maps.Marker({
+                position: { lat, lng },
+                map: map,
+                title: station.name || "Unknown Station",
+                icon: createMarkerIcon(color, false, availableBikes, totalStands)
+            });
+
+            marker.customColor = color;
+            marker.customAvailableBikes = availableBikes;
+            marker.customTotalStands = totalStands;
+
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
                     <div style="min-width:220px">
                         <h3 style="margin:0 0 8px 0;">${station.name || "Unknown Station"}</h3>
                         <p><strong>Available Bikes:</strong> ${availableBikes}</p>
                         <p><strong>Available Stands:</strong> ${availableStands}</p>
                         <p><strong>Status:</strong> ${station.status ?? "N/A"}</p>
                     </div>
-                `,
-      });
+                `
+            });
 
-      marker.customInfoWindow = infoWindow;
+            marker.customInfoWindow = infoWindow;
 
-      marker.addListener("click", () => {
-        activateMarker(marker, color, infoWindow, station);
-      });
-      allMarkers.push({ marker, station });
-      if (!firstMarkerData) {
-        firstMarkerData = { marker, color, infoWindow, station };
-      }
-    });
-    applyStationFilter();
+            marker.addListener("click", () => {
+                activateMarker(marker, color, infoWindow, station);
+            });
 
-    const restored = restoreActiveStation();
+            allMarkers.push({ marker, station });
 
-    if (!restored && firstMarkerData) {
-      activateMarker(
-        firstMarkerData.marker,
-        firstMarkerData.color,
-        firstMarkerData.infoWindow,
-        firstMarkerData.station,
-      );
+            if (!firstMarkerData) {
+                firstMarkerData = { marker, color, infoWindow, station };
+            }
+        });
+
+        applyStationFilter();
+
+        const restored = restoreActiveStation();
+
+        if (!restored && firstMarkerData) {
+            activateMarker(
+                firstMarkerData.marker,
+                firstMarkerData.color,
+                firstMarkerData.infoWindow,
+                firstMarkerData.station
+            );
+        }
+
+        updateLastUpdatedTime();
+        setRefreshStatus("success");
+    } catch (error) {
+        console.error("Failed to load station data:", error);
+        setRefreshStatus("error");
+    } finally {
+        isRefreshing = false;
     }
-  } catch (error) {
-    console.error("Failed to load station data:", error);
-    alert("Failed to load station data. Check console for details.");
-  }
 }
 
 function initMap() {
@@ -511,8 +566,9 @@ function initMap() {
         filterSelect.addEventListener("change", applyStationFilter);
     }
 
+    setRefreshStatus("idle");
     loadStations();
-    startAutoRefresh(60000); // refresh every 60 seconds
+    startAutoRefresh(60000);
 }
 
 window.initMap = initMap;
