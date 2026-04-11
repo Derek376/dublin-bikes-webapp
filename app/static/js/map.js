@@ -5,35 +5,85 @@ let activeMarker = null;
 let activeInfoWindow = null;
 let allMarkers = [];
 let allStations = [];
+let activeStationNumber = null;
+let refreshIntervalId = null;
+
+function startAutoRefresh(intervalMs = 60000) {
+    if (refreshIntervalId) {
+        clearInterval(refreshIntervalId);
+    }
+
+    refreshIntervalId = setInterval(() => {
+        loadStations();
+    }, intervalMs);
+}
+
+function clearAllMarkers() {
+  allMarkers.forEach(({ marker }) => {
+    marker.setMap(null);
+  });
+
+  allMarkers = [];
+  activeMarker = null;
+
+  if (activeInfoWindow) {
+    activeInfoWindow.close();
+    activeInfoWindow = null;
+  }
+}
+
+function restoreActiveStation() {
+  if (activeStationNumber == null) {
+    return false;
+  }
+
+  const target = allMarkers.find(
+    ({ station }) => station.number === activeStationNumber,
+  );
+
+  if (!target) {
+    return false;
+  }
+
+  activateMarker(
+    target.marker,
+    target.marker.customColor,
+    target.marker.customInfoWindow,
+    target.station,
+  );
+
+  return true;
+}
 
 function matchesFilter(station, filterValue) {
-    const availableBikes = station.available_bikes ?? 0;
-    const totalStands =
-        station.bike_stands ?? (availableBikes + (station.available_bike_stands ?? 0));
+  const availableBikes = station.available_bikes ?? 0;
+  const totalStands =
+    station.bike_stands ??
+    availableBikes + (station.available_bike_stands ?? 0);
 
-    const ratio = totalStands > 0 ? availableBikes / totalStands : 0;
+  const ratio = totalStands > 0 ? availableBikes / totalStands : 0;
 
-    if (filterValue === "open") {
-        return station.status === "OPEN";
-    }
+  if (filterValue === "open") {
+    return station.status === "OPEN";
+  }
 
-    if (filterValue === "high") {
-        return ratio >= 0.6;
-    }
+  if (filterValue === "high") {
+    return ratio >= 0.6;
+  }
 
-    return true;
+  return true;
 }
 
 function applyStationFilter() {
-    const filterValue = document.getElementById("station-filter").value;
+  const filterValue = document.getElementById("station-filter").value;
 
-    allMarkers.forEach(({ marker, station }) => {
-        if (matchesFilter(station, filterValue)) {
-            marker.setMap(map);
-        } else {
-            marker.setMap(null);
-        }
-    });
+  allMarkers.forEach(({ marker, station }) => {
+    if (matchesFilter(station, filterValue)) {
+      marker.setMap(map);
+    } else {
+      marker.setMap(null);
+    }
+  });
 }
 
 function formatForecastTime(dtString) {
@@ -47,26 +97,26 @@ function formatForecastTime(dtString) {
 }
 
 function updateSummaryCards(stations) {
-    const totalStations = stations.length;
+  const totalStations = stations.length;
 
-    const openStations = stations.filter(
-        station => station.status === "OPEN"
-    ).length;
+  const openStations = stations.filter(
+    (station) => station.status === "OPEN",
+  ).length;
 
-    const totalBikes = stations.reduce(
-        (sum, station) => sum + (station.available_bikes ?? 0),
-        0
-    );
+  const totalBikes = stations.reduce(
+    (sum, station) => sum + (station.available_bikes ?? 0),
+    0,
+  );
 
-    const totalStands = stations.reduce(
-        (sum, station) => sum + (station.available_bike_stands ?? 0),
-        0
-    );
+  const totalStands = stations.reduce(
+    (sum, station) => sum + (station.available_bike_stands ?? 0),
+    0,
+  );
 
-    document.getElementById("total-stations").textContent = totalStations;
-    document.getElementById("open-stations").textContent = openStations;
-    document.getElementById("total-bikes").textContent = totalBikes;
-    document.getElementById("total-stands").textContent = totalStands;
+  document.getElementById("total-stations").textContent = totalStations;
+  document.getElementById("open-stations").textContent = openStations;
+  document.getElementById("total-bikes").textContent = totalBikes;
+  document.getElementById("total-stands").textContent = totalStands;
 }
 
 function renderWeatherForecast(forecastData) {
@@ -253,6 +303,7 @@ function activateMarker(marker, color, infoWindow, station) {
 
   activeMarker = marker;
   activeInfoWindow = infoWindow;
+  activeStationNumber = station.number ?? null;
 
   infoWindow.open({
     anchor: marker,
@@ -366,6 +417,8 @@ async function loadStationHistory(stationNumber) {
 
 async function loadStations() {
   try {
+    clearAllMarkers();
+
     const response = await fetch("/api/live/jcdecaux");
 
     if (!response.ok) {
@@ -375,9 +428,9 @@ async function loadStations() {
     const stations = await response.json();
     allStations = stations;
     allMarkers = [];
-    
-	updateSummaryCards(stations);
-	
+
+    updateSummaryCards(stations);
+
     let firstMarkerData = null;
 
     stations.forEach((station) => {
@@ -416,6 +469,8 @@ async function loadStations() {
                 `,
       });
 
+      marker.customInfoWindow = infoWindow;
+
       marker.addListener("click", () => {
         activateMarker(marker, color, infoWindow, station);
       });
@@ -424,7 +479,11 @@ async function loadStations() {
         firstMarkerData = { marker, color, infoWindow, station };
       }
     });
-    if (firstMarkerData) {
+    applyStationFilter();
+
+    const restored = restoreActiveStation();
+
+    if (!restored && firstMarkerData) {
       activateMarker(
         firstMarkerData.marker,
         firstMarkerData.color,
@@ -432,7 +491,6 @@ async function loadStations() {
         firstMarkerData.station,
       );
     }
-    applyStationFilter();
   } catch (error) {
     console.error("Failed to load station data:", error);
     alert("Failed to load station data. Check console for details.");
@@ -454,6 +512,7 @@ function initMap() {
     }
 
     loadStations();
+    startAutoRefresh(60000); // refresh every 60 seconds
 }
 
 window.initMap = initMap;
