@@ -1,108 +1,50 @@
-# run_scrapers.py
-import os
-import sys
+# scraper/run_scraper.py
 import time
-import signal
-import subprocess
-import threading
-from typing import Optional
+import traceback
+from datetime import datetime, UTC
 
-
-def stream_output(pipe, prefix: str):
-    """
-    Read lines from a subprocess stream and print with a prefix.
-    """
-    try:
-        for line in iter(pipe.readline, ''):
-            if not line:
-                break
-            print(f"[{prefix}] {line.rstrip()}")
-    finally:
-        pipe.close()
-
-
-def start_process(script_name: str) -> subprocess.Popen:
-    """
-    Start a Python script as a subprocess using the current Python interpreter.
-    """
-    script_path = os.path.join(os.path.dirname(__file__), script_name)
-    if not os.path.exists(script_path):
-        raise FileNotFoundError(f"Script not found: {script_path}")
-
-    # -u enables unbuffered output for real-time logs
-    proc = subprocess.Popen(
-        [sys.executable, "-u", script_path],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        bufsize=1
-    )
-    return proc
-
-
-def terminate_process(proc: Optional[subprocess.Popen], name: str):
-    """
-    Gracefully terminate a subprocess, then force kill if needed.
-    """
-    if proc is None or proc.poll() is not None:
-        return
-
-    print(f"Stopping {name} ...")
-    proc.terminate()
-    try:
-        proc.wait(timeout=8)
-    except subprocess.TimeoutExpired:
-        print(f"{name} did not stop in time, killing...")
-        proc.kill()
-        proc.wait(timeout=5)
+from create_tables import create_database, create_tables
+from scrape_jcdecaux import scrape_once as scrape_jcdecaux_once
+from scrape_openweather import scrape_once as scrape_openweather_once
+from dbinfo import (
+    JCDECAUX_SCRAPE_INTERVAL,
+    OPENWEATHER_SCRAPE_INTERVAL,
+    MAIN_LOOP_SLEEP
+)
 
 
 def main():
-    """
-    Run both scrapers concurrently and keep this process alive.
-    """
-    jc_proc = None
-    ow_proc = None
+    create_database()
+    create_tables()
 
-    try:
-        jc_proc = start_process("scrape_jcdecaux.py")
-        ow_proc = start_process("scrape_openweather.py")
+    last_jc = 0.0
+    last_ow = 0.0
 
-        jc_thread = threading.Thread(
-            target=stream_output, args=(jc_proc.stdout, "JCDECAUX"), daemon=True
-        )
-        ow_thread = threading.Thread(
-            target=stream_output, args=(ow_proc.stdout, "OPENWEATHER"), daemon=True
-        )
+    print("Scraper started.")
+    while True:
+        now = time.time()
 
-        jc_thread.start()
-        ow_thread.start()
+        # JCDecaux
+        if now - last_jc >= JCDECAUX_SCRAPE_INTERVAL:
+            try:
+                n = scrape_jcdecaux_once()
+                print(f"[{datetime.now(UTC)}] JCDecaux updated: {n} stations")
+                last_jc = now
+            except Exception:
+                print("[JCDecaux] scrape failed:")
+                print(traceback.format_exc())
 
-        print("Both scrapers started. Press Ctrl+C to stop all.")
+        # OpenWeather
+        if now - last_ow >= OPENWEATHER_SCRAPE_INTERVAL:
+            try:
+                scrape_openweather_once()
+                print(f"[{datetime.now(UTC)}] OpenWeather updated")
+                last_ow = now
+            except Exception:
+                print("[OpenWeather] scrape failed:")
+                print(traceback.format_exc())
 
-        while True:
-            # If one process exits unexpectedly, stop everything to avoid silent failure
-            jc_code = jc_proc.poll()
-            ow_code = ow_proc.poll()
-
-            if jc_code is not None:
-                print(f"scrape_jcdecaux.py exited with code {jc_code}. Stopping all...")
-                break
-
-            if ow_code is not None:
-                print(f"scrape_openweather.py exited with code {ow_code}. Stopping all...")
-                break
-
-            time.sleep(1)
-
-    except KeyboardInterrupt:
-        print("\nKeyboardInterrupt received.")
-    except Exception as e:
-        print(f"Error in runner: {e}")
-    finally:
-        terminate_process(jc_proc, "scrape_jcdecaux.py")
-        terminate_process(ow_proc, "scrape_openweather.py")
-        print("All scrapers stopped.")
+        time.sleep(MAIN_LOOP_SLEEP)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,66 @@
+:root {
+    --primary-color: rgb(251, 245, 231);
+    --secondary-color: rgb(183, 77, 104);
+    --tertiary-color: rgb(0, 0, 0);
+    --text-color: rgb(0, 0, 0);
+    --nav-text-color: rgb(255, 255, 255);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    background-color: var(--primary-color);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0.5em;
+    gap: 100px;
+    border-bottom: 1.5px solid;
+}
+
+img {
+    width: 220px;
+    mix-blend-mode: multiply;
+}
+
+ul {
+    list-style-type: none;
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+    font-size: 1.8em;
+    gap: 70px;
+    text-decoration: none;
+}
+
+.nav-login {
+    border-radius: 100%;
+}
+
+.section-title {
+    font-style: italic;
+    text-align: center;
+    font-size: 80px;
+    text-decoration: underline;
+}
+
+#map {
+    height: 800px;
+    width: 95%;
+    border: 1.5px solid;
+    margin-left: 35px;
+ }
+
+footer {
+    bottom: 0;
+    margin-top: 60px;
+    background-color: var(--primary-color);
+    padding: 16px 0;
+    width: 100%;
+    color: var(--text-color);
+    text-align: center;
+    border-top: 1.5px solid;
+}

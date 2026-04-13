@@ -1,0 +1,107 @@
+:root {
+    --primary-color: rgb(251, 245, 231);
+    --secondary-color: rgb(255, 255, 255);
+    --tertiary-color: rgb(0, 0, 0);
+    --text-color: rgb(0, 0, 0);
+    --nav-text-color: rgb(255, 255, 255);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    background-color: var(--primary-color);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0.5em;
+    gap: 100px;
+    border-bottom: 1.5px solid;
+}
+
+img {
+    width: 220px;
+    mix-blend-mode: multiply;
+}
+
+ul {
+    list-style-type: none;
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+    font-size: 1.8em;
+    gap: 70px;
+    text-decoration: none;
+}
+
+.nav-login {
+    border-radius: 70%;
+}
+
+.section-title {
+    font-style: italic;
+    text-align: center;
+    font-size: 80px;
+}
+
+.credentials-container {
+  display: flex;
+  justify-content: center;
+  padding: 100px 10px;
+}
+
+.credentials-section {
+  box-shadow: var(--box-shadow);
+  border-radius: 15px;
+  background-color: var(--primary-color);
+  padding: 80px;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.credentials-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  text-align: left;
+}
+
+.credentials-group label {
+  display: flex;
+  color: var(--tertiary-color);
+  font-weight: bold;
+  font-size: large;
+}
+
+.credentials-group input,
+.credentials-group textarea {
+  border: 1.5px solid var(--primary-color);
+  padding: 15px;
+  width: 100%;
+  max-width: 95%;
+  font-size: 15px;
+}
+
+button {
+    background: var(--primary-color);
+    background-color: var(--secondary-color);
+    color: var(--tertiary-color);
+    padding: 20px 15px;
+    border: none;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+footer {
+    bottom: 0;
+    margin-top: 60px;
+    background-color: var(--primary-color);
+    padding: 16px 0;
+    width: 100%;
+    color: var(--text-color);
+    text-align: center;
+    border-top: 1.5px solid;
+}

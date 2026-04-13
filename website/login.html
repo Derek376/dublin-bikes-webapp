@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Dublin Bikes</title>
+    <link rel = "stylesheet" href="./stylesheets/login.css">
+    <script> 
+    function getYear () {
+        return new Date().getFullYear();
+    }
+    </script>
+</head>
+
+<body>
+    <nav>
+        <img src="./images/title.png" alt="logo"/>
+        <ul class="nav">
+            <li class="nav-home"><a href='index.html'>Home</a></li>
+            <li class="nav-item"><a href='map.html'>Live Map</a></li>
+            <li class="nav-item"><a href='subscriptions.html'>Subscriptions</a></li>
+            <li class="nav-item"><a href='weather.html'>Weather</a></li>
+            <li class="nav-login"><a href='login.html'>Login/Create Account</a></li>
+        </ul>
+    </nav>
+
+      <main class="credentials-container">
+        <section class="credentials-section">
+          <h1 class="section-title">Login &#128273;</h1>
+
+          <form class="credentials-form">
+            <div class="credentials-group">
+              <label for="email">Email</label>
+              <input id="email" type="text" placeholder="Enter your Email" />
+            </div>
+
+            <div class="credentials-group">
+              <label for="password">Password</label>
+              <input id="password" type="password" placeholder="Enter your password" />
+            </div>
+
+            <button type="button">Login</button>
+          </form>
+
+          <h2> Don't have an account? Create one <a href="createaccount.html">here</a></h2>
+        </section>
+      </main>
+
+    <footer>
+        <p>
+            <script>document.write(getYear());</script> Dublin Bikes
+        </p>
+    </footer>
+
+</body>
+</html>

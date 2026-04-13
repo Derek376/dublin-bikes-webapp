@@ -1,0 +1,125 @@
+:root {
+    --primary-color: rgb(251, 245, 231);
+    --secondary-color: rgb(128, 0, 32);
+    --tertiary-color: rgb(0, 0, 0);
+    --text-color: rgb(0, 0, 0);
+    --nav-text-color: rgb(255, 255, 255);
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+nav {
+    background-color: var(--primary-color);
+    width: 100%;
+    display: flex;
+    align-items: center;
+    padding: 0.5em;
+    gap: 100px;
+    border-bottom: 1.5px solid;
+}
+
+img {
+    width: 220px;
+    mix-blend-mode: multiply;
+}
+
+ul {
+    list-style-type: none;
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+    font-size: 1.8em;
+    gap: 70px;
+    text-decoration: none;
+}
+
+.nav-login {
+    border-radius: 70%;
+}
+
+.section-title {
+    font-style: italic;
+    text-align: center;
+    font-size: 80px;
+    text-decoration: underline;
+}
+
+.card-container {
+    justify-content: center;
+    align-items: center;
+}
+
+.card {
+    display: block;
+    flex-direction: column;
+    border: 1px solid black;
+    border-radius: 10px;
+    box-shadow: 5px 5px 5px rgb(0, 0, 0, 0.1);
+    padding: 40px;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.weather-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.weather-header img {
+    width: 100px;
+    height: 100px;
+    mix-blend-mode: normal;
+}
+
+.weather-header h1 {
+    font-size: 3em;
+    margin: 0;
+}
+
+.weather-header p {
+    font-size: 1.4em;
+    text-transform: capitalize;
+    margin: 0;
+}
+
+#weather-feels, #weather-location {
+    font-size: 1.2em;
+    margin: 5px 0;
+}
+
+.detail-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.detail-label {
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #333;
+}
+
+.detail-value {
+    font-size: 1.3em;
+}
+
+
+footer {
+    bottom: 0;
+    margin-top: 60px;
+    background-color: var(--primary-color);
+    padding: 16px 0;
+    width: 100%;
+    color: var(--text-color);
+    text-align: center;
+    border-top: 1.5px solid;
+}

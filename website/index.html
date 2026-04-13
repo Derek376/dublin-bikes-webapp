@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dublin Bikes</title>
+    <link rel = "stylesheet" href="./stylesheets/index.css">
+    <script> 
+    function getYear () {
+        return new Date().getFullYear();
+    }
+    </script>
+</head>
+
+<body>
+    <nav>
+        <img src="./images/title.png" alt="logo"/>
+        <ul class="nav">
+            <li class="nav-home"><a href='index.html'>Home</a></li>
+            <li class="nav-item"><a href='map.html'>Live Map</a></li>
+            <li class="nav-item"><a href='subscriptions.html'>Subscriptions</a></li>
+            <li class="nav-item"><a href='weather.html'>Weather</a></li>
+            <li class="nav-login"><a href='login.html'>Login/Create Account</a></li>
+        </ul>
+    </nav>
+
+    <div class="background-container">
+        <img class="background" src="./images/dublinbikes.avif" alt="background">
+        <div class="background-text">
+            <h1>"A Bike Sharing Website for the city of Dublin"</h1>
+        </div>
+    </div>
+
+    <h1 class = "section-title">
+        Welcome
+    </h1>
+
+    <div class="card">
+        <img class ="logo" src="./images/logo.jpg" alt = "logo">
+
+        <h1>
+            Welcome to Dublin Bikes! In this website/ web application we aim
+            to show the station occupancy data of "DublinBikes" and to display
+            the data on a google map. In addition to this we also display
+            weather data based on data from Openweather. Providing detailed
+            analysis to a wide variety of users
+        </h1>
+    </div>
+
+    <footer>
+        <p>
+            <script>document.write(getYear());</script> Dublin Bikes
+        </p>
+    </footer>
+
+</body>
+</html>

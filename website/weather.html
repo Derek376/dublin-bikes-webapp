@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather - Dublin Bikes</title>
+    <link rel = "stylesheet" href="./stylesheets/weather.css">
+    <script> 
+    function getYear () {
+        return new Date().getFullYear();
+    }
+    </script>
+</head>
+
+<body>
+    <nav>
+        <img src="./images/title.png" alt="logo"/>
+        <ul class="nav">
+            <li class="nav-home"><a href='index.html'>Home</a></li>
+            <li class="nav-item"><a href='map.html'>Live Map</a></li>
+            <li class="nav-item"><a href='subscriptions.html'>Subscriptions</a></li>
+            <li class="nav-item"><a href='weather.html'>Weather</a></li>
+            <li class="nav-login"><a href='login.html'>Login/Create Account</a></li>
+        </ul>
+    </nav>
+
+    <h1 class ="section-title"> Weather Analysis</h1>
+
+    <div class="card-container">
+        <div class="card" id="weather-main">
+            <div class="weather-header">
+                <img id="weather-icon" src="" alt="weather icon" />
+                <div>
+                    <h1 id="weather-temp">--°C</h1>
+                    <p id="weather-desc">Loading...</p>
+                </div>
+            </div>
+            <p id="weather-feels">Feels like: --°C</p>
+            <p id="weather-location">Dublin, IE</p>
+        </div>
+
+        <div class="card" id="weather-details">
+            <h2>Details</h2>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <span class="detail-label">Humidity</span>
+                    <span class="detail-value" id="weather-humidity">--%</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Pressure</span>
+                    <span class="detail-value" id="weather-pressure">-- hPa</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Wind Speed</span>
+                    <span class="detail-value" id="weather-wind">-- m/s</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Visibility</span>
+                    <span class="detail-value" id="weather-visibility">-- km</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Cloudiness</span>
+                    <span class="detail-value" id="weather-clouds">--%</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Temp Range</span>
+                    <span class="detail-value" id="weather-range">--°C / --°C</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="weather-sun">
+            <h2>Sun</h2>
+            <p>Sunrise: <span id="weather-sunrise">--:--</span></p>
+            <p>Sunset: <span id="weather-sunset">--:--</span></p>
+        </div>
+    </div>
+
+    <script>
+        async function fetchWeather() {
+            try {
+                const response = await fetch('http://localhost:5001/api/weather/live');
+                const data = await response.json();
+
+                document.getElementById('weather-temp').textContent = Math.round(data.main.temp) + '°C';
+                document.getElementById('weather-feels').textContent = 'Feels like: ' + Math.round(data.main.feels_like) + '°C';
+                document.getElementById('weather-desc').textContent = data.weather[0].description;
+                document.getElementById('weather-icon').src = 'https://openweathermap.org/img/wn/' + data.weather[0].icon + '@2x.png';
+                document.getElementById('weather-humidity').textContent = data.main.humidity + '%';
+                document.getElementById('weather-pressure').textContent = data.main.pressure + ' hPa';
+                document.getElementById('weather-wind').textContent = data.wind.speed + ' m/s';
+                document.getElementById('weather-visibility').textContent = (data.visibility / 1000) + ' km';
+                document.getElementById('weather-clouds').textContent = data.clouds.all + '%';
+                document.getElementById('weather-range').textContent = Math.round(data.main.temp_min) + '°C / ' + Math.round(data.main.temp_max) + '°C';
+
+                const sunrise = new Date(data.sys.sunrise * 1000);
+                const sunset = new Date(data.sys.sunset * 1000);
+                document.getElementById('weather-sunrise').textContent = sunrise.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                document.getElementById('weather-sunset').textContent = sunset.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            } catch (error) {
+                console.error('Error fetching weather:', error);
+            }
+        }
+
+        fetchWeather();
+    </script>
+
+    <footer>
+        <p>
+            <script>document.write(getYear());</script> Dublin Bikes
+        </p>
+    </footer>
+
+</body>
+</html>

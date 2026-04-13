@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Map - Dublin Bikes</title>
+    <link rel = "stylesheet" href="./stylesheets/map.css">
+    <script> 
+    function getYear () {
+        return new Date().getFullYear();
+    }
+    </script>
+    <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.js?version=4.8.0"></script>
+
+    <script src="./scripts/index_error_handling.js"></script>
+</head>
+
+<body>
+    <nav>
+        <img src="./images/title.png" alt="logo"/>
+        <ul class="nav">
+            <li class="nav-home"><a href='index.html'>Home</a></li>
+            <li class="nav-item"><a href='map.html'>Live Map</a></li>
+            <li class="nav-item"><a href='subscriptions.html'>Subscriptions</a></li>
+            <li class="nav-item"><a href='weather.html'>Weather</a></li>
+            <li class="nav-login"><a href='login.html'>Login/Create Account</a></li>
+        </ul>
+    </nav>
+
+    <h1 class = "section-title">
+        Welcome to the Live Map!
+    </h1>
+
+    <div id="map"></div> <!-- This ID is used by the .js and .css -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD4T2XxZYbN9vI_DrEj-Le4V_TUdHtqUa0&callback=initMap"
+    async defer>
+    </script>
+
+
+    <footer>
+        <p>
+            <script>document.write(getYear());</script> Dublin Bikes
+        </p>
+    </footer>
+
+</body>
+</html>
