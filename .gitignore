@@ -209,6 +209,7 @@ __marimo__/
 # secrets
 .env
 .env.*
+!.env.example
 *.pem
 *.key
 
