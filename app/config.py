@@ -44,3 +44,5 @@ class Config:
 
     # Google Maps
     GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+
+    SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-this")

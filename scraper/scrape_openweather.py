@@ -1,11 +1,13 @@
 # scraper/scrape_openweather.py
-from datetime import datetime, timezone, UTC
+from datetime import datetime, UTC
 import requests
 import pymysql
 
 from app.config import Config
 
+
 def get_conn():
+    """Create and return a MySQL connection for weather scraping tasks."""
     return pymysql.connect(
         host=Config.DB_HOST, port=Config.DB_PORT, user=Config.DB_USER, password=Config.DB_PASSWORD,
         database=Config.DB_NAME, charset="utf8mb4", autocommit=True
@@ -13,17 +15,38 @@ def get_conn():
 
 
 def unix_to_dt(sec):
+    """Convert a Unix timestamp in seconds to a naive UTC datetime.
+
+    Args:
+        sec: Unix timestamp in seconds.
+
+    Returns:
+        A naive UTC datetime, or None if the input is None.
+    """
     if sec is None:
         return None
     return datetime.fromtimestamp(int(sec), tz=UTC).replace(tzinfo=None)
 
 
 def _weather_id(obj: dict):
+    """Extract the first weather condition ID from an OpenWeather object.
+
+    Args:
+        obj: A weather record containing a 'weather' list.
+
+    Returns:
+        The weather condition ID, or None if unavailable.
+    """
     w = (obj.get("weather") or [{}])[0]
     return w.get("id")
 
 
 def fetch_current():
+    """Fetch current weather data from OpenWeather.
+
+    Returns:
+        The current weather response as JSON.
+    """
     params = {
         "lat": Config.OPENWEATHER_LAT,
         "lon": Config.OPENWEATHER_LON,
@@ -36,6 +59,11 @@ def fetch_current():
 
 
 def fetch_hourly_4days():
+    """Fetch the 4-day hourly forecast from OpenWeather.
+
+    Returns:
+        The hourly forecast response as JSON.
+    """
     params = {
         "lat": Config.OPENWEATHER_LAT,
         "lon": Config.OPENWEATHER_LON,
@@ -48,6 +76,14 @@ def fetch_hourly_4days():
 
 
 def fetch_daily(cnt=16):
+    """Fetch the daily forecast from OpenWeather.
+
+    Args:
+        cnt: Number of forecast days to request.
+
+    Returns:
+        The daily forecast response as JSON.
+    """
     params = {
         "lat": Config.OPENWEATHER_LAT,
         "lon": Config.OPENWEATHER_LON,
@@ -61,8 +97,10 @@ def fetch_daily(cnt=16):
 
 
 def insert_current(cur_json):
-    """
-    /data/2.5/weather
+    """Insert or update current weather data in the database.
+
+    Args:
+        cur_json: JSON response from the current weather endpoint.
     """
     dt_now = unix_to_dt(cur_json.get("dt"))
     if dt_now is None:
@@ -74,7 +112,7 @@ def insert_current(cur_json):
     visibility = cur_json.get("visibility")
     sys = cur_json.get("sys") or {}
 
-    # rain/snow 1h may be missing, or rain/snow itself may be missing. Use (dict.get() or {}) to avoid KeyError.
+    # rain/snow 1h may be missing, or rain/snow itself may be missing.
     rain_1h = (cur_json.get("rain") or {}).get("1h")
     snow_1h = (cur_json.get("snow") or {}).get("1h")
 
@@ -129,11 +167,12 @@ def insert_current(cur_json):
 
 
 def insert_hourly(hourly_json):
+    """Insert or update hourly forecast data in the database.
+
+    Args:
+        hourly_json: JSON response from the hourly forecast endpoint.
     """
-    pro /data/2.5/forecast/hourly
-    JSON 通常包含 list: [{dt, main{temp,feels_like,pressure,humidity}, pop, clouds{all}, wind{speed,gust}, rain{1h}, snow{1h}, weather[...]}, ...]
-    """
-    base_dt = datetime.now(UTC)  # record the time we fetch the data, to calculate future_dt in SQL
+    base_dt = datetime.now(UTC)
     rows = hourly_json.get("list") or []
 
     sql = """
@@ -190,9 +229,10 @@ def insert_hourly(hourly_json):
 
 
 def insert_daily(daily_json):
-    """
-    /data/2.5/forecast/daily?cnt=16
-    list: [{dt, temp{min,max}, pressure, humidity, speed, gust, clouds, rain, snow, weather[...]}, ...]
+    """Insert or update daily forecast data in the database.
+
+    Args:
+        daily_json: JSON response from the daily forecast endpoint.
     """
     base_dt = datetime.now(UTC)
     rows = daily_json.get("list") or []
@@ -244,6 +284,11 @@ def insert_daily(daily_json):
 
 
 def scrape_once():
+    """Run one full OpenWeather scraping cycle.
+
+    Returns:
+        True when all weather datasets have been fetched and stored.
+    """
     # 1) current
     cur = fetch_current()
     insert_current(cur)

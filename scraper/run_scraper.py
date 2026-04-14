@@ -10,6 +10,7 @@ from app.config import Config
 
 
 def main():
+    """Run the main scraper loop for database setup and periodic data collection."""
     create_database()
     create_tables()
 

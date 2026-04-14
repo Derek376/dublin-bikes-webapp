@@ -11,10 +11,52 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
+    
+    <div id="message-container" class="message-container hidden">
+      <div id="message-box" class="message-box">
+        <span id="message-text">Message goes here</span>
+        <button
+          id="message-close-btn"
+          class="message-close-btn"
+          aria-label="Close message"
+        >
+          x
+        </button>
+      </div>
+    </div>
+
     <header>
       <h1>Dublin Bikes Live Map</h1>
       <p>Live station availability across Dublin</p>
     </header>
+
+    <section class="auth-section">
+      <div class="auth-forms">
+        <div class="auth-card">
+          <h3>Register</h3>
+          <input type="email" id="register-email" placeholder="Email" />
+          <input
+            type="password"
+            id="register-password"
+            placeholder="Password"
+          />
+          <button id="register-btn">Register</button>
+        </div>
+
+        <div class="auth-card">
+          <h3>Login</h3>
+          <input type="email" id="login-email" placeholder="Email" />
+          <input type="password" id="login-password" placeholder="Password" />
+          <button id="login-btn">Login</button>
+          <button id="logout-btn">Logout</button>
+        </div>
+      </div>
+
+      <div class="auth-status-card">
+        <h3>User Status</h3>
+        <p id="auth-status-text">Not logged in</p>
+      </div>
+    </section>
 
     <section class="status-bar">
       <div class="status-item">
@@ -86,7 +128,15 @@
           <p>Click a station marker to view details.</p>
         </div>
 
-        <div class="chart-container" style="min-height: 200px; flex-shrink: 0;">
+        <div class="favorites-section">
+          <h3>Favorites</h3>
+          <button id="favorite-toggle-btn" disabled>
+            Select a station first
+          </button>
+          <ul id="favorites-list"></ul>
+        </div>
+
+  <div class="chart-container" style="min-height: 200px; flex-shrink: 0;">
           <canvas id="historyChart"></canvas>
         </div>
 
