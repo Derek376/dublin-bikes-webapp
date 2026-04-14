@@ -1,5 +1,5 @@
 import pymysql
-from app.config import Config # noqa
+from app.config import Config
 
 
 def get_conn():
