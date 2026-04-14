@@ -380,6 +380,14 @@ function updateStationDetails(station) {
         <p><strong>Total Stands:</strong> ${totalStands}</p>
         <p><strong>Status:</strong> ${station.status ?? "N/A"}</p>
         <p><strong>Address:</strong> ${station.address ?? "N/A"}</p>
+      <hr style="margin: 15px 0;">
+      <h3 style="margin-bottom: 10px;">Predict Future Available Bikes</h3>
+      <div style="display: flex; flex-direction: column; gap: 8px;">
+        <input type="date" id="predict-date" style="padding: 5px;">
+        <input type="time" id="predict-time" style="padding: 5px;">
+        <button onclick="predictBikes(${station.number})" style="padding: 8px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px;">Run Prediction</button>
+        <div id="predict-result" style="margin-top: 5px; font-weight: bold; color: #d9534f;"></div>
+      </div>
     `;
 }
 
@@ -570,5 +578,38 @@ function initMap() {
     loadStations();
     startAutoRefresh(60000);
 }
+
+window.predictBikes = async function (stationId) {
+  const date = document.getElementById("predict-date")?.value;
+  const time = document.getElementById("predict-time")?.value;
+  const resultEl = document.getElementById("predict-result");
+
+  if (!resultEl) {
+    return;
+  }
+
+  if (!date || !time) {
+    resultEl.innerHTML = "<span>Please select both date and time.</span>";
+    return;
+  }
+
+  resultEl.textContent = "Loading prediction data...";
+
+  try {
+    const url = `/api/db/predict?station_id=${stationId}&date=${date}&time=${time}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.status === "success") {
+      resultEl.textContent = `✅ Predicted available bikes: ${data.predicted_available_bikes} bikes`;
+      return;
+    }
+
+    resultEl.textContent = "Prediction failed. Please try again.";
+  } catch (error) {
+    console.error("Prediction failed:", error);
+    resultEl.textContent = "Prediction failed. Please try again.";
+  }
+};
 
 window.initMap = initMap;

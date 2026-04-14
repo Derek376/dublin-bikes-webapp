@@ -229,4 +229,11 @@ venv/
 # Project specific secrets
 environment.yml
 scraper/dbinfo.py
-.env
+.env*.joblib
+*.pkl
+*.csv
+.ipynb_checkpoints/
+*.joblib
+*.pkl
+*.csv
+.ipynb_checkpoints/

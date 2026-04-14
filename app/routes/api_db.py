@@ -1,4 +1,8 @@
 from flask import Blueprint, jsonify, request
+import joblib
+import pandas as pd
+from datetime import datetime
+
 from app.services.queries import (
     get_all_stations_latest,
     get_station_latest,
@@ -9,6 +13,7 @@ from app.services.queries import (
 )
 
 db_bp = Blueprint("db", __name__, url_prefix="/api/db")
+model = joblib.load("ml/best_bike_model.joblib")
 
 @db_bp.route("/stations")
 def get_stations():
@@ -42,3 +47,79 @@ def get_db_weather_daily():
     limit = request.args.get("limit", default=16, type=int)
     data = get_daily_forecast_latest(limit)
     return jsonify(data)
+
+
+@db_bp.route("/predict", methods=["GET"])
+def predict_available_bikes():
+    station_id = request.args.get("station_id", type=int)
+    date_str = request.args.get("date")
+    time_str = request.args.get("time")
+
+    if station_id is None or not date_str or not time_str:
+        return jsonify({"status": "error", "message": "Missing required query parameters: station_id, date, time"}), 400
+
+    try:
+        dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M")
+    except ValueError:
+        return jsonify({"status": "error", "message": "Invalid date/time format. Expected date=YYYY-MM-DD and time=HH:MM"}), 400
+
+    hour = dt.hour
+    day_of_week = dt.weekday()
+    month = dt.month
+
+    try:
+        forecasts = get_hourly_forecast_latest(limit=120)
+
+        if not forecasts:
+            raise ValueError("No hourly forecast data returned")
+
+        def parse_future_dt(value):
+            if isinstance(value, datetime):
+                return value
+            if isinstance(value, str):
+                normalized = value.replace("Z", "+00:00") if value.endswith("Z") else value
+                return datetime.fromisoformat(normalized)
+            raise ValueError("Unsupported future_dt type")
+
+        nearest = min(
+            forecasts,
+            key=lambda item: abs((parse_future_dt(item.get("future_dt")).replace(tzinfo=None) - dt).total_seconds()),
+        )
+
+        temp = nearest.get("temp", 12.0)
+        humidity = nearest.get("humidity", 75.0)
+        pressure = nearest.get("pressure", 1010.0)
+    except Exception as e:
+        temp = 12.0
+        humidity = 75.0
+        pressure = 1010.0
+        print(f"Weather lookup failed in predict_available_bikes: {e}")
+
+    features = pd.DataFrame([
+        {
+            "station_id": station_id,
+            "hour": hour,
+            "day_of_week": day_of_week,
+            "month": month,
+            "max_air_temperature_celsius": temp,
+            "max_relative_humidity_percent": humidity,
+            "max_barometric_pressure_hpa": pressure,
+        }
+    ], columns=[
+        "station_id",
+        "hour",
+        "day_of_week",
+        "month",
+        "max_air_temperature_celsius",
+        "max_relative_humidity_percent",
+        "max_barometric_pressure_hpa",
+    ])
+
+    prediction = model.predict(features)[0]
+    predicted_available_bikes = max(0, int(round(prediction)))
+
+    return jsonify({
+        "status": "success",
+        "predicted_available_bikes": predicted_available_bikes,
+        "station_id": station_id,
+    })

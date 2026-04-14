@@ -11,6 +11,9 @@ dependencies:
   - cryptography
   - pip
   - flask
+  - pandas
+  - scikit-learn
+  - joblib
 variables:
   DB_USER:
   DB_PASSWORD:
@@ -25,4 +28,3 @@ variables:
   JCDECAUX_SCRAPE_INTERVAL:
   OPENWEATHER_SCRAPE_INTERVAL:
   MAIN_LOOP_SLEEP:
-prefix: D:\anaconda3\envs\comp30830
