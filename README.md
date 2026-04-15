@@ -123,7 +123,7 @@ Before running the application, create the MySQL database and required tables.
 
 2. Run the table creation script:
    ```bash
-   python scraper/create_tables.py
+   python -m scraper.run_scraper
    ```
 
 This will create the tables needed for:

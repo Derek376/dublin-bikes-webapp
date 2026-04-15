@@ -14,6 +14,7 @@ dependencies:
   - scikit-learn
   - joblib
   - pandas
+  - python-dotenv
 variables:
   DB_USER: null
   DB_PASSWORD: null
