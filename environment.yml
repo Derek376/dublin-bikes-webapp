@@ -1,4 +1,4 @@
-name: comp30830
+name: dublin-bikes-env
 channels:
   - defaults
 dependencies:
