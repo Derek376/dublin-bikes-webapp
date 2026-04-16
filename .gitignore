@@ -227,13 +227,13 @@ venv/
 .DS_Store
 
 # Project specific secrets
-environment.yml
 scraper/dbinfo.py
-.env*.joblib
+
+# Ignore large datasets and temp files
 *.pkl
 *.csv
 .ipynb_checkpoints/
-*.joblib
-*.pkl
-*.csv
-.ipynb_checkpoints/
+
+#  Model is ALLOWED to be pushed (21MB)
+# *.joblib
+
