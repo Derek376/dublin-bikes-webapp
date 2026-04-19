@@ -13,7 +13,6 @@
   - [⚙️ Configuration](#️-configuration)
   - [🗄️ Database Setup](#️-database-setup)
   - [📥 Running the Scraper](#-running-the-scraper)
-  - [🤖 ML Model Setup](#-ml-model-setup)
 - [💻 Usage](#-usage)
 - [🤖 Machine Learning Model](#-machine-learning-model)
 - [🧪 Testing](#-testing)
@@ -123,7 +122,7 @@ Before running the application, create the MySQL database and required tables.
 
 2. Run the table creation script:
    ```bash
-   python -m scraper.run_scraper
+   python -m scraper.create_tables
    ```
 
 This will create the tables needed for:
@@ -155,23 +154,6 @@ and stores them in the local MySQL database for later retrieval and analysis.
 
 ---
 
-### 🤖 ML Model Setup
-
-Before starting the Flask application, make sure the trained model file has been generated.
-
-The trained model file is not included in the repository because of file size limits.
-To generate it locally, run `model_training.ipynb` in the `ml/` directory.
-
-The prediction feature depends on this file, and the application may not start correctly without it.
-
----
-
-### Dataset note
-
-The merged dataset file `ml/final_merged_data.csv` is not included in the repository because it exceeds GitHub's file size limit.
-
-It is used during the machine learning workflow in the `ml/` directory and can be regenerated locally through the data preparation and model training process if needed.
-
 ## 💻 Usage
 
 ### Start the Flask application
@@ -202,6 +184,8 @@ http://127.0.0.1:5000
 
 The project includes a machine learning model trained on historical bike occupancy and weather-related features.
 
+The trained model file is included in the repository and is used directly by the Flask prediction endpoint.
+
 ### ML workflow
 
 - Clean and preprocess historical data
@@ -212,11 +196,17 @@ The project includes a machine learning model trained on historical bike occupan
 
 ### Model file
 
-The Flask app expects a trained model file such as:
+The Flask app uses the following trained model file:
 
 ```bash
 ml/best_bike_model.joblib
 ```
+
+### Dataset note
+
+The merged dataset file `ml/final_merged_data.csv` is not included in the repository because it exceeds GitHub's file size limit.
+
+It is used during the machine learning workflow in the `ml/` directory and can be regenerated locally through the data preparation and model training process if needed.
 
 ---
 
