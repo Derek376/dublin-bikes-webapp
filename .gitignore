@@ -233,7 +233,6 @@ scraper/dbinfo.py
 *.pkl
 *.csv
 .ipynb_checkpoints/
-*.joblib
 *.pkl
 *.csv
 .ipynb_checkpoints/
