@@ -57,14 +57,14 @@ dublin-bikes-webapp/
 │   ├── services/           # Business logic, DB access, external API helpers
 │   ├── static/             # CSS, JavaScript, images
 │   ├── templates/          # HTML templates
-│   └── __init__.py
+│   ├── __init__.py
+│   └── config.py           # App/database configuration
 │
-├── config/                 # App/database configuration
 ├── scraper/                # Data collection scripts and DB table creation
 ├── ml/                     # ML training notebook and trained model file
 ├── tests/                  # Automated tests
 ├── docs/                   # Personas, user stories, mockups, acceptance criteria, etc.
-├── requirements.txt        # Python dependencies
+├── environment.yml       # Python dependencies
 ├── run.py                  # App entry point
 └── README.md
 ```
