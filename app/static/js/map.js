@@ -1,3 +1,4 @@
+let map = null;
 let historyChart = null;
 let weatherChart = null;
 let activeMarker = null;
