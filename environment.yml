@@ -15,4 +15,5 @@ dependencies:
   - joblib
   - pandas
   - python-dotenv
+  - pytest
 prefix: /opt/anaconda3/envs/comp30830
