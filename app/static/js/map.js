@@ -250,7 +250,7 @@ function getMarkerColor(availableBikes, totalStands) {
   const ratio = availableBikes / totalStands;
 
   if (ratio >= 0.6) return "green";
-  if (ratio >= 0.3) return "orange";
+  if (ratio >= 0.3) return "yellow";
   return "red";
 }
 
@@ -269,27 +269,17 @@ function createMarkerIcon(
   availableBikes = 0,
   totalStands = 0,
 ) {
-  let baseScale = 8;
-
-  if (totalStands > 0) {
-    const ratio = availableBikes / totalStands;
-
-    if (ratio >= 0.6) {
-      baseScale = 10;
-    } else if (ratio >= 0.3) {
-      baseScale = 8;
-    } else {
-      baseScale = 6;
-    }
+  // Use PNG icons instead of SVG markers
+  let iconUrl = "/static/images/redbikeIcon.png";
+  if (color === "green") {
+    iconUrl = "/static/images/greenbikeIcon.png";
+  } else if (color === "yellow") {
+    iconUrl = "/static/images/yellowbikeIcon.png";
   }
-
   return {
-    path: google.maps.SymbolPath.CIRCLE,
-    fillColor: color,
-    fillOpacity: 0.9,
-    strokeColor: "white",
-    strokeWeight: isActive ? 2 : 1,
-    scale: isActive ? baseScale + 4 : baseScale,
+    url: iconUrl,
+    scaledSize: new google.maps.Size(isActive ? 48 : 36, isActive ? 48 : 36),
+    anchor: new google.maps.Point(18, 36)
   };
 }
 
@@ -480,7 +470,13 @@ function updateStationDetails(station) {
     <div style="display: flex; flex-direction: column; gap: 8px;">
       <input type="date" id="predict-date" style="padding: 5px;">
       <input type="time" id="predict-time" style="padding: 5px;">
-      <button onclick="predictBikes(${station.number})" style="padding: 8px; cursor: pointer; background-color: #007bff; color: white; border: none; border-radius: 4px;">Run Prediction</button>
+      <button onclick="predictBikes(${station.number})" 
+      style="padding: 8px; 
+      cursor: pointer; 
+      background: linear-gradient(90deg, #1976d2 0%, #21cbf3 100%); 
+      color: white; 
+      border: none; 
+      border-radius: 4px;">Run Prediction</button>
       <div id="predict-result" style="margin-top: 5px; font-weight: bold; color: #d9534f;"></div>
     </div>
   `;
@@ -726,6 +722,10 @@ function updateSummaryCards(stations) {
   document.getElementById("open-stations").textContent = openStations;
   document.getElementById("total-bikes").textContent = totalBikes;
   document.getElementById("total-stands").textContent = totalStands;
+  document.getElementById("total-stations2").textContent = totalStations;
+  document.getElementById("open-stations2").textContent = openStations;
+  document.getElementById("total-bikes2").textContent = totalBikes;
+  document.getElementById("total-stands2").textContent = totalStands;
 }
 
 /* =========================
@@ -752,6 +752,39 @@ async function checkAuthStatus() {
   } catch (error) {
     console.error("Failed to check auth status:", error);
   }
+}
+
+/**
+ * Controls behaviour of the login forms.
+ */
+function showLoginDialog() {
+  const dialog = document.getElementById("auth-dialog");
+  if (dialog) {
+    dialog.showModal();
+  }
+}
+
+function login() {
+  var login = document.getElementById("login");
+  var register = document.getElementById("register");
+  var toggle = document.getElementById("login-register-btn");
+
+  login.style.left = "50px";
+  register.style.left = "-400px";
+  toggle.style.left = "0px";
+
+
+}
+
+function register() {
+  var login = document.getElementById("login");
+  var register = document.getElementById("register");
+  var toggle = document.getElementById("login-register-btn");
+
+  login.style.left = "-400px";
+  register.style.left = "50px";
+  toggle.style.left = "110px";
+  
 }
 
 /**

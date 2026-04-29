@@ -8,6 +8,7 @@
       rel="stylesheet"
       href="{{ url_for('static', filename='css/style.css') }}"
     />
+    <link rel = "icon" type="image/jpg" href="{{ url_for('static', filename='images/logo.jpg') }}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
@@ -26,37 +27,37 @@
     </div>
 
     <header>
-      <h1>Dublin Bikes Live Map</h1>
-      <p>Live station availability across Dublin</p>
+      <div class="header-content">
+        <div>
+          <h1>Dublin Bikes Live Map</h1>
+          <p>Live station availability across Dublin</p>
+        </div>
+        <button id="auth-btn" onclick="showLoginDialog()">Manage Account</button>
+      </div>
     </header>
 
-    <section class="auth-section">
-      <div class="auth-forms">
-        <div class="auth-card">
-          <h3>Register</h3>
-          <input type="email" id="register-email" placeholder="Email" />
-          <input
-            type="password"
-            id="register-password"
-            placeholder="Password"
-          />
-          <button id="register-btn">Register</button>
-        </div>
-
-        <div class="auth-card">
-          <h3>Login</h3>
-          <input type="email" id="login-email" placeholder="Email" />
-          <input type="password" id="login-password" placeholder="Password" />
-          <button id="login-btn">Login</button>
-          <button id="logout-btn">Logout</button>
+    <dialog id="auth-dialog">
+      <div class = "auth-section">
+        <div class="auth-box">
+          <div class = "login-register-box">
+            <div id = "login-register-btn"> </div>
+              <button type = "button" class = "toggle-btn" onclick="login()">Login</button>
+              <button type = "button" class = "toggle-btn" onclick="register()">Register</button>
+          </div>
+          <form id = "login" class = "input-group">
+                <input type="email" id="login-email" class="auth-input-field" placeholder="Email" required />
+                <input type="password" id="login-password" class="auth-input-field" placeholder="Enter Password" required />
+                <button type="submit" id="login-btn" class="auth-submit-btn">Login</button>
+                <button type="button" id="logout-btn">Logout</button>
+          </form>
+          <form id = "register" class = "input-group">
+                <input type="email" id="register-email" class="auth-input-field" placeholder="Email" required />
+                <input type="password" id="register-password" class="auth-input-field" placeholder="Enter Password" required />
+                <button type="submit" id="register-btn" class="auth-submit-btn">Register</button>
+          </form>
         </div>
       </div>
-
-      <div class="auth-status-card">
-        <h3>User Status</h3>
-        <p id="auth-status-text">Not logged in</p>
-      </div>
-    </section>
+    </dialog>
 
     <section class="status-bar">
       <div class="status-item">
@@ -71,24 +72,48 @@
     </section>
 
     <section class="summary-bar">
-      <div class="summary-card">
-        <h3>Total Stations</h3>
-        <p id="total-stations">--</p>
+      <div class = "carousel">
+        <div class="summary-card">
+          <h3>Total Stations</h3>
+          <p id="total-stations">--</p>
+        </div>
+
+        <div class="summary-card">
+          <h3>Open Stations</h3>
+          <p id="open-stations">--</p>
+        </div>
+
+        <div class="summary-card">
+          <h3>Available Bikes</h3>
+          <p id="total-bikes">--</p>
+        </div>
+
+        <div class="summary-card">
+          <h3>Available Stands</h3>
+          <p id="total-stands">--</p>
+        </div>
       </div>
 
-      <div class="summary-card">
-        <h3>Open Stations</h3>
-        <p id="open-stations">--</p>
-      </div>
+        <div class = "carousel">
+        <div class="summary-card">
+          <h3>Total Stations</h3>
+          <p id="total-stations2">--</p>
+        </div>
 
-      <div class="summary-card">
-        <h3>Available Bikes</h3>
-        <p id="total-bikes">--</p>
-      </div>
+        <div class="summary-card">
+          <h3>Open Stations</h3>
+          <p id="open-stations2">--</p>
+        </div>
 
-      <div class="summary-card">
-        <h3>Available Stands</h3>
-        <p id="total-stands">--</p>
+        <div class="summary-card">
+          <h3>Available Bikes</h3>
+          <p id="total-bikes2">--</p>
+        </div>
+
+        <div class="summary-card">
+          <h3>Available Stands</h3>
+          <p id="total-stands2">--</p>
+        </div>
       </div>
     </section>
 
@@ -104,54 +129,63 @@
     <main class="layout">
       <section class="map-section">
         <div id="map"></div>
-
         <div class="map-legend">
           <h4>Bike Availability</h4>
           <div class="legend-item">
-            <span class="legend-dot green"></span>
+            <span><img src="{{ url_for('static', filename='images/greenbikeIcon.png') }}" alt="High availability"></span>
             <span>High availability</span>
           </div>
           <div class="legend-item">
-            <span class="legend-dot orange"></span>
+            <span><img src="{{ url_for('static', filename='images/yellowbikeIcon.png') }}" alt="Medium availability"></span>
             <span>Medium availability</span>
           </div>
           <div class="legend-item">
-            <span class="legend-dot red"></span>
+            <span><img src="{{ url_for('static', filename='images/redbikeIcon.png') }}" alt="Low availability"></span>
             <span>Low availability</span>
           </div>
         </div>
       </section>
 
-      <aside class="side-panel">
-        <div id="station-details">
-          <h2>Station Details</h2>
-          <p>Click a station marker to view details.</p>
-        </div>
-
-        <div class="favorites-section">
-          <h3>Favorites</h3>
-          <button id="favorite-toggle-btn" disabled>
-            Select a station first
-          </button>
-          <ul id="favorites-list"></ul>
-        </div>
-
-  <div class="chart-container" style="min-height: 200px; flex-shrink: 0;">
-          <canvas id="historyChart"></canvas>
-        </div>
-
-        <div class="weather-section">
-          <h3>Weather Forecast</h3>
-
-          <div class="chart-container weather-chart-container" style="min-height: 200px; flex-shrink: 0;">
-            <canvas id="weatherChart"></canvas>
+      <ul class="accordion">
+        <li>
+          <input type="radio" name="accordion" id="station-accordion">
+          <label for="station-accordion">Station Details</label>
+          <div class="content">
+            <div id="station-details">
+              <p>Click a station marker to view details.</p>
+            </div>
           </div>
-
-          <div id="weather-summary">
+        </li>
+        <li>
+          <input type="radio" name="accordion" id="favourites-accordion">
+          <label for="favourites-accordion">Favorites</label>
+          <div class="content">
+            <button id="favorite-toggle-btn" disabled>
+              Select a station first
+            </button>
+            <ul id="favorites-list"></ul>
+          </div>
+        </li>
+        <li>
+          <input type="radio" name="accordion" id="weather-accordion">
+          <label for="weather-accordion">Weather</label>
+          <div id="weather-summary" class="content">
             <p>Click a station marker to load weather forecast.</p>
           </div>
-        </div>
-      </aside>
+        </li>
+        <li>
+          <input type="radio" name="accordion" id="charts-accordion">
+          <label for="charts-accordion">Charts</label>
+          <div class="content">
+            <div class="chart-container" style="min-height: 200px; flex-shrink: 0;">
+              <canvas id="historyChart"></canvas>
+            </div>
+            <div class="chart-container weather-chart-container" style="min-height: 200px; flex-shrink: 0;">
+              <canvas id="weatherChart"></canvas>
+            </div>
+          </div>
+        </li>
+      </ul>
     </main>
 
     <script src="{{ url_for('static', filename='js/map.js') }}"></script>
