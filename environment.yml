@@ -14,5 +14,7 @@ dependencies:
   - scikit-learn
   - joblib
   - pandas
+  - matplotlib
+  - seaborn
   - python-dotenv
 prefix: /opt/anaconda3/envs/comp30830
