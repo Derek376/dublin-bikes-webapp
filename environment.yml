@@ -17,18 +17,4 @@ dependencies:
   - matplotlib
   - seaborn
   - python-dotenv
-variables:
-  DB_USER: null
-  DB_PASSWORD: null
-  DB_HOST: null
-  DB_PORT: null
-  DB_NAME: null
-  JCDECAUX_API_KEY: null
-  JCDECAUX_CONTRACT: null
-  OPENWEATHER_API_KEY: null
-  OPENWEATHER_LAT: null
-  OPENWEATHER_LON: null
-  JCDECAUX_SCRAPE_INTERVAL: null
-  OPENWEATHER_SCRAPE_INTERVAL: null
-  MAIN_LOOP_SLEEP: null
 prefix: /opt/anaconda3/envs/comp30830
